@@ -3,6 +3,9 @@ from functools import total_ordering
 
 @total_ordering
 class Student:
+    
+    all_students = []
+
     def __init__(self, name, surname, gender):
         self.name = name
         self.surname = surname
@@ -11,22 +14,28 @@ class Student:
         self.courses_in_progress = []
         self.grades = {}
         self.all_grades = []
-        
+        Student.all_students.append(self)
+
     def __str__(self):
-        print(f'Имя: {self.name}')
-        print(f'Фамилия: {self.surname}')
-        print(f'Средняя оценка за лекции {self.all_grades / len(self.all_grades)}')
-        print(f'Курсы в процессе обучения: {self.courses_in_progress}')
-        print(f'Завершенные курсы: {self.finished_courses}')
-           
+        return (f'\nИмя: {self.name}\n'
+                f'Фамилия: {self.surname}\n'
+                f'Средняя оценка за домашние задания {sum(self.all_grades) / len(self.all_grades)}\n'
+                f'Курсы в процессе обучения: {self.courses_in_progress}\n'
+                f'Завершенные курсы: {self.finished_courses}\n')            
+            
     def __eq__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades)) == (sum(value.all_grades) / len(value.all_grades))
-    
+        return (sum(self.all_grades) / len(self.all_grades) 
+                == sum(value.all_grades) / len(value.all_grades))
+
     def __gt__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades)) > (sum(value.all_grades) / len(value.all_grades))
-        
+        return (sum(self.all_grades) / len(self.all_grades) 
+                > sum(value.all_grades) / len(value.all_grades))
+
     def rate_hw(self, lecturer, course, grade):
-        if isinstance(lecturer, Lecturer) and course in lecturer.courses_attached and course in self.courses_in_progress:
+        if (isinstance(lecturer, Lecturer) 
+            and course in lecturer.courses_attached 
+            and course in self.courses_in_progress):
+            
             if course in lecturer.grades:
                 lecturer.grades[course] += [grade]
                 lecturer.all_grades += [grade]
@@ -35,58 +44,83 @@ class Student:
                 lecturer.all_grades += [grade]
         else:
             return 'Ошибка'
-        
+
 
 class Mentor:
     def __init__(self, name, surname):
         self.name = name
         self.surname = surname
         self.courses_attached = []
-        
 
-@total_ordering       
+
+@total_ordering
 class Lecturer(Mentor):
+    all_lecturers = []
+
     def __init__(self, name, surname):
         self.name = name
         self.surname = surname
         self.courses_attached = []
         self.grades = {}
         self.all_grades = []
-    
+        Lecturer.all_lecturers.append(self)
+
     def __str__(self):
-        print(f'Имя: {self.name}')
-        print(f'Фамилия: {self.surname}')
-        print(f'Средняя оценка за лекции {self.all_grades / len(self.all_grades)}')
-         
+        return (f'\nИмя: {self.name}\n'
+                f'Фамилия: {self.surname}\n'
+                f'Средняя оценка за лекции {sum(self.all_grades) / len(self.all_grades)}\n')
+
     def __eq__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades)) == (sum(value.all_grades) / len(value.all_grades))
-    
+        return (sum(self.all_grades) / len(self.all_grades) 
+                == sum(value.all_grades) / len(value.all_grades))
+
     def __gt__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades)) > (sum(value.all_grades) / len(value.all_grades))        
-        
+        return (sum(self.all_grades) / len(self.all_grades) 
+                > sum(value.all_grades) / len(value.all_grades))
+
 
 class Reviewer(Mentor):
     def __str__(self):
-        print(f'Имя: {self.name}')
-        print(f'Фамилия: {self.surname}')
-        
+        return (f'\nИмя: {self.name}\n'
+                f'Фамилия: {self.surname}\n')
+
     def rate_hw(self, student, course, grade):
-        if isinstance(student, Student) and course in self.courses_attached and course in student.courses_in_progress:
+        if (isinstance(student, Student) 
+            and course in self.courses_attached 
+            and course in student.courses_in_progress):
+            
             if course in student.grades:
                 student.grades[course] += [grade]
-                student.all_grades += [grade]                
+                student.all_grades += [grade]
             else:
                 student.grades[course] = [grade]
                 student.all_grades += [grade]
         else:
             return 'Ошибка'
+
+
+def middle_rate_homework(students, name_course):
+    grade_list = []
+    for student in students:
+        if name_course in student.grades:
+            grade_list += student.grades[name_course]
+    if len(grade_list) == 0:
+        print(f'Нет сданных работ на курсе: {name_course}.')
+    else:
+        grade = sum(grade_list)/len(grade_list)
+        print(f'Средняя оценка студентов на курсе {name_course}: {grade}.')
         
         
-#def middle_rate_homework(students, name_course):
-
-
-
-
+def middle_rate_homework_lecturer(lecturers, name_course):
+    grade_list = []
+    for lecturer in lecturers:
+        if name_course in lecturer.grades:
+            grade_list += lecturer.grades[name_course]
+    if len(grade_list) == 0:
+        print(f'Нет оценок студентов на курсе: {name_course}.')
+    else:
+        grade = sum(grade_list)/len(grade_list)
+        print(f'Средняя оценка преподавателей на курсе {name_course}: {grade}.')
 
 
 student_1 = Student('Иван', 'Иванов', 'М')
@@ -172,3 +206,24 @@ print(lecturer_3 > lecturer_1)
 print(lecturer_1 < lecturer_2)
 print(lecturer_2 <= lecturer_3)
 print(lecturer_3 >= lecturer_1)
+
+
+print(student_1)
+print(student_2)
+
+print(lecturer_1)
+print(lecturer_2)
+
+print(reviewer_1)
+print(reviewer_2)
+
+
+middle_rate_homework(Student.all_students, 'Python')
+middle_rate_homework(Student.all_students, 'Java')
+middle_rate_homework(Student.all_students, 'C')
+
+
+middle_rate_homework_lecturer(Lecturer.all_lecturers, 'Python')
+middle_rate_homework_lecturer(Lecturer.all_lecturers, 'JS')
+middle_rate_homework_lecturer(Lecturer.all_lecturers, 'Java')
+middle_rate_homework_lecturer(Lecturer.all_lecturers, 'C')
