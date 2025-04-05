@@ -1,6 +1,11 @@
 from functools import total_ordering
 
 
+def avg_rate(rate_list):
+    return (sum(rate_list)/len(rate_list) if len(rate_list) > 0 
+            else False)
+
+
 @total_ordering
 class Student:
     
@@ -17,19 +22,32 @@ class Student:
         Student.all_students.append(self)
 
     def __str__(self):
+        avg_rate_s = avg_rate(self.all_grades)
+        if avg_rate_s:
+            my_str = f'Средняя оценка за домашние задания {avg_rate_s}\n'
+        else:
+            my_str = f'Оценки за домашнее задание отсутсвуют\n'
         return (f'\nИмя: {self.name}\n'
                 f'Фамилия: {self.surname}\n'
-                f'Средняя оценка за домашние задания {sum(self.all_grades) / len(self.all_grades)}\n'
+                f'{my_str}'
                 f'Курсы в процессе обучения: {self.courses_in_progress}\n'
                 f'Завершенные курсы: {self.finished_courses}\n')            
             
     def __eq__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades) 
-                == sum(value.all_grades) / len(value.all_grades))
+        avg_rate_s = avg_rate(self.all_grades)
+        avg_rate_v = avg_rate(value.all_grades)
+        if avg_rate_s and avg_rate_v:
+            return avg_rate_s == avg_rate_v
+        else:
+            return 'У одного из студентов нет оценок'
 
     def __gt__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades) 
-                > sum(value.all_grades) / len(value.all_grades))
+        avg_rate_s = avg_rate(self.all_grades)
+        avg_rate_v = avg_rate(value.all_grades)
+        if avg_rate_s and avg_rate_v:
+            return avg_rate_s > avg_rate_v
+        else:
+            return 'У одного из студентов нет оценок'
 
     def rate_hw(self, lecturer, course, grade):
         if (isinstance(lecturer, Lecturer) 
@@ -71,12 +89,20 @@ class Lecturer(Mentor):
                 f'Средняя оценка за лекции {sum(self.all_grades) / len(self.all_grades)}\n')
 
     def __eq__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades) 
-                == sum(value.all_grades) / len(value.all_grades))
+        avg_rate_s = avg_rate(self.all_grades)
+        avg_rate_v = avg_rate(value.all_grades)
+        if avg_rate_s and avg_rate_v:
+            return avg_rate_s == avg_rate_v
+        else:
+            return 'У одного из преподователей нет оценок'
 
     def __gt__(self, value):
-        return (sum(self.all_grades) / len(self.all_grades) 
-                > sum(value.all_grades) / len(value.all_grades))
+        avg_rate_s = avg_rate(self.all_grades)
+        avg_rate_v = avg_rate(value.all_grades)
+        if avg_rate_s and avg_rate_v:
+            return avg_rate_s > avg_rate_v
+        else:
+            return 'У одного из преподователей нет оценок'
 
 
 class Reviewer(Mentor):
