@@ -19,12 +19,12 @@ class Student:
         self.courses_in_progress = []
         self.grades = {}
         self.all_grades = []
+        self.mid_grade = False
         Student.all_students.append(self)
 
     def __str__(self):
-        avg_rate_s = avg_rate(self.all_grades)
-        if avg_rate_s:
-            my_str = f'Средняя оценка за домашние задания {avg_rate_s}\n'
+        if self.mid_grade:
+            my_str = f'Средняя оценка за домашние задания {self.mid_grade}\n'
         else:
             my_str = f'Оценки за домашнее задание отсутсвуют\n'
         return (f'\nИмя: {self.name}\n'
@@ -34,18 +34,14 @@ class Student:
                 f'Завершенные курсы: {self.finished_courses}\n')            
             
     def __eq__(self, value):
-        avg_rate_s = avg_rate(self.all_grades)
-        avg_rate_v = avg_rate(value.all_grades)
-        if avg_rate_s and avg_rate_v:
-            return avg_rate_s == avg_rate_v
+        if self.mid_grade and value.mid_grade:
+            return self.mid_grade == value.mid_grade
         else:
             return 'У одного из студентов нет оценок'
 
     def __gt__(self, value):
-        avg_rate_s = avg_rate(self.all_grades)
-        avg_rate_v = avg_rate(value.all_grades)
-        if avg_rate_s and avg_rate_v:
-            return avg_rate_s > avg_rate_v
+        if self.mid_grade and value.mid_grade:
+            return self.mid_grade > value.mid_grade
         else:
             return 'У одного из студентов нет оценок'
 
@@ -57,9 +53,11 @@ class Student:
             if course in lecturer.grades:
                 lecturer.grades[course] += [grade]
                 lecturer.all_grades += [grade]
+                lecturer.mid_grade = avg_rate(lecturer.all_grades)
             else:
                 lecturer.grades[course] = [grade]
                 lecturer.all_grades += [grade]
+                lecturer.mid_grade = avg_rate(lecturer.all_grades)
         else:
             return 'Ошибка'
 
@@ -81,26 +79,28 @@ class Lecturer(Mentor):
         self.courses_attached = []
         self.grades = {}
         self.all_grades = []
+        self.mid_grade = False
         Lecturer.all_lecturers.append(self)
 
     def __str__(self):
+        if self.mid_grade:
+            my_str = f'Средняя оценка за лекции {self.mid_grade}\n'
+        else:
+            my_str = 'У преподавателя нет оценок.'
+        
         return (f'\nИмя: {self.name}\n'
                 f'Фамилия: {self.surname}\n'
-                f'Средняя оценка за лекции {sum(self.all_grades) / len(self.all_grades)}\n')
+                f'{my_str}')
 
     def __eq__(self, value):
-        avg_rate_s = avg_rate(self.all_grades)
-        avg_rate_v = avg_rate(value.all_grades)
-        if avg_rate_s and avg_rate_v:
-            return avg_rate_s == avg_rate_v
+        if self.mid_grade and value.mid_grade:
+            return self.mid_grade == value.mid_grade 
         else:
             return 'У одного из преподователей нет оценок'
-
+        
     def __gt__(self, value):
-        avg_rate_s = avg_rate(self.all_grades)
-        avg_rate_v = avg_rate(value.all_grades)
-        if avg_rate_s and avg_rate_v:
-            return avg_rate_s > avg_rate_v
+        if self.mid_grade and value.mid_grade:
+            return self.mid_grade > value.mid_grade 
         else:
             return 'У одного из преподователей нет оценок'
 
@@ -118,9 +118,11 @@ class Reviewer(Mentor):
             if course in student.grades:
                 student.grades[course] += [grade]
                 student.all_grades += [grade]
+                student.mid_grade = avg_rate(student.all_grades)
             else:
                 student.grades[course] = [grade]
                 student.all_grades += [grade]
+                student.mid_grade = avg_rate(student.all_grades)
         else:
             return 'Ошибка'
 
@@ -133,7 +135,7 @@ def middle_rate_homework(students, name_course):
     if len(grade_list) == 0:
         print(f'Нет сданных работ на курсе: {name_course}.')
     else:
-        grade = sum(grade_list)/len(grade_list)
+        grade = avg_rate(grade_list)
         print(f'Средняя оценка студентов на курсе {name_course}: {grade}.')
         
         
@@ -145,7 +147,7 @@ def middle_rate_homework_lecturer(lecturers, name_course):
     if len(grade_list) == 0:
         print(f'Нет оценок студентов на курсе: {name_course}.')
     else:
-        grade = sum(grade_list)/len(grade_list)
+        grade = avg_rate(grade_list)
         print(f'Средняя оценка преподавателей на курсе {name_course}: {grade}.')
 
 
